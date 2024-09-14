@@ -48,8 +48,13 @@ type Token struct {
 }
 
 var keyworkds = map[string]TokenType{
-	"fn":  FUNCTION,
-	"let": LET,
+	"fn":     FUNCTION,
+	"let":    LET,
+	"if":     IF,
+	"else":   ELSE,
+	"return": RETURN,
+	"true":   TRUE,
+	"false":  FALSE,
 }
 
 func LoopupIdentifier(ident string) TokenType {
