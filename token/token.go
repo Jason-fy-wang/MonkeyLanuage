@@ -7,8 +7,19 @@ const (
 	IDENT = "IDENT"
 	INT   = "INT"
 
-	ASSIGN = "="
-	PLUS   = "+"
+	ASSIGN   = "="
+	PLUS     = "+"
+	MINUS    = "-"
+	BANG     = "!"
+	ASTERISK = "*"
+	SLASH    = "/"
+	LESS     = "<"
+	GREAT    = ">"
+
+	EQUAL    = "=="
+	NOTEQUAL = "!="
+	LEQ      = "<="
+	GEQ      = ">="
 
 	COMMA     = ","
 	SEMICOLON = ";"
@@ -22,6 +33,11 @@ const (
 
 	FUNCTION = "FUNCTION"
 	LET      = "LET"
+	IF       = "IF"
+	ELSE     = "ELSE"
+	RETURN   = "RETURN"
+	TRUE     = "TRUE"
+	FALSE    = "FALSE"
 )
 
 type TokenType string

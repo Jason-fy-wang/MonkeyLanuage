@@ -41,6 +41,8 @@ func TestLiteral(t *testing.T) {
 					x+y
 				};
 				let result=add(five,ten);
+				!-/*5
+				5 < 10 > 5
 				`
 
 	tests := []struct {
@@ -82,6 +84,16 @@ func TestLiteral(t *testing.T) {
 		{token.IDENT, "ten"},
 		{token.RPAREN, ")"},
 		{token.SEMICOLON, ";"},
+		{token.BANG, "!"},
+		{token.MINUS, "-"},
+		{token.SLASH, "/"},
+		{token.ASTERISK, "*"},
+		{token.IDENT, "5"},
+		{token.IDENT, "5"},
+		{token.LESS, "<"},
+		{token.IDENT, "10"},
+		{token.GREAT, ">"},
+		{token.IDENT, "5"},
 	}
 
 	l := New(input)
