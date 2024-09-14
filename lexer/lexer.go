@@ -20,7 +20,12 @@ func (l *Lexer) NextToken() token.Token {
 	l.skipWhiteSpace()
 	switch l.ch {
 	case '=':
-		tok = NewToken(token.ASSIGN, "=")
+		if l.peekChar() == '=' {
+			l.readChar()
+			tok = NewToken(token.EQUAL, "==")
+		} else {
+			tok = NewToken(token.ASSIGN, "=")
+		}
 	case '+':
 		tok = NewToken(token.PLUS, "+")
 	case ',':
@@ -32,11 +37,26 @@ func (l *Lexer) NextToken() token.Token {
 	case '/':
 		tok = NewToken(token.SLASH, "/")
 	case '<':
-		tok = NewToken(token.LESS, "<")
+		if l.peekChar() == '=' {
+			l.readChar()
+			tok = NewToken(token.LEQ, "<=")
+		} else {
+			tok = NewToken(token.LESS, "<")
+		}
 	case '>':
-		tok = NewToken(token.GREAT, ">")
+		if l.peekChar() == '=' {
+			l.readChar()
+			tok = NewToken(token.GEQ, ">=")
+		} else {
+			tok = NewToken(token.GREAT, ">")
+		}
 	case '!':
-		tok = NewToken(token.BANG, "!")
+		if l.peekChar() == '=' {
+			l.readChar()
+			tok = NewToken(token.NOTEQUAL, "!=")
+		} else {
+			tok = NewToken(token.BANG, "!")
+		}
 	case ';':
 		tok = NewToken(token.SEMICOLON, ";")
 	case '(':
@@ -100,18 +120,17 @@ func (l *Lexer) readChar() {
 	l.ReadPosition = l.Position + 1
 }
 
-func (l *Lexer) skipWhiteSpace() {
-	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
-		l.readChar()
-	}
-}
-
 func (l *Lexer) peekChar() byte {
 	if l.ReadPosition < len(l.Input) {
 		return l.Input[l.ReadPosition]
 	}
-
 	return 0
+}
+
+func (l *Lexer) skipWhiteSpace() {
+	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
+		l.readChar()
+	}
 }
 
 func IsLitter(ch byte) bool {

@@ -125,8 +125,60 @@ func TestLiteral(t *testing.T) {
 		{token.SEMICOLON, ";"},
 		{token.RBRACE, "}"},
 
-		// 双目运算
-		{},
+		// binocular operation (双目)
+		{token.IDENT, "10"},
+		{token.EQUAL, "=="},
+		{token.IDENT, "10"},
+		{token.NOTEQUAL, "!="},
+		{token.IDENT, "9"},
+		{token.IDENT, "10"},
+		{token.LEQ, "<="},
+		{token.IDENT, "11"},
+		{token.IDENT, "10"},
+		{token.GEQ, ">="},
+		{token.IDENT, "9"},
+	}
+
+	l := New(input)
+
+	for _, itm := range tests {
+		token := l.NextToken()
+
+		if itm.expectType != token.Type {
+			t.Errorf("expect type: %s, real type: %v", itm.expectType, token.Type)
+		}
+
+		if itm.expectLeteral != token.Literal {
+			t.Errorf("expect literal: %s, real literal: %v", itm.expectLeteral, token.Literal)
+		}
+	}
+}
+
+func TestDoubleOperation(t *testing.T) {
+	input := `
+	10 == 10
+	10 != 9
+	10 <= 11
+	10 >= 9
+	`
+
+	tests := []struct {
+		expectType    token.TokenType
+		expectLeteral string
+	}{
+		// binocular operation (双目)
+		{token.IDENT, "10"},
+		{token.EQUAL, "=="},
+		{token.IDENT, "10"},
+		{token.IDENT, "10"},
+		{token.NOTEQUAL, "!="},
+		{token.IDENT, "9"},
+		{token.IDENT, "10"},
+		{token.LEQ, "<="},
+		{token.IDENT, "11"},
+		{token.IDENT, "10"},
+		{token.GEQ, ">="},
+		{token.IDENT, "9"},
 	}
 
 	l := New(input)
