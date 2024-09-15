@@ -83,7 +83,7 @@ func (l *Lexer) NextToken() token.Token {
 			return tok
 		} else if IsDigital(l.ch) {
 			tok.Literal = l.readDigital()
-			tok.Type = token.LoopupIdentifier(tok.Literal)
+			tok.Type = token.INT
 			return tok
 		} else {
 			tok = NewToken(token.ILLEGAL, string(l.ch))

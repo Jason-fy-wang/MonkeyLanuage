@@ -20,7 +20,7 @@ func TestLetStatements(t *testing.T) {
 	p := New(l)
 
 	program := p.ParserProgram()
-	checkParserErrors(t, p)
+	CheckParserErrors(t, p)
 	if program == nil {
 		t.Fatalf("ParseProgram return nil")
 	}
@@ -74,7 +74,7 @@ func testLetStatement(t *testing.T, stmt ast.Statement, name string) bool {
 	return true
 }
 
-func checkParserErrors(t *testing.T, p *Parser) {
+func CheckParserErrors(t *testing.T, p *Parser) {
 	if len(p.errors) == 0 {
 		return
 	}

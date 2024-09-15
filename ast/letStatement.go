@@ -1,6 +1,8 @@
 package ast
 
 import (
+	"bytes"
+
 	"com.lanuage/monkey/token"
 )
 
@@ -17,17 +19,20 @@ func (lt *LetStatement) statementNode() {
 
 }
 
+func (lt *LetStatement) String() string {
+	var buf = bytes.Buffer{}
+
+	buf.WriteString(lt.TokenLiteral() + " ")
+	buf.WriteString(lt.Name.String())
+	buf.WriteString(" = ")
+	if lt.Value != nil {
+		buf.WriteString(lt.Value.String())
+	}
+	buf.WriteString(";")
+
+	return buf.String()
+}
+
 func (lt *LetStatement) TokenLiteral() string {
 	return lt.Token.Literal
-}
-
-type Identifier struct {
-	Token token.Token
-	Value string
-}
-
-func (it *Identifier) statementNode() {}
-
-func (it *Identifier) TokenLiteral() string {
-	return it.Token.Literal
 }
