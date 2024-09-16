@@ -6,6 +6,7 @@ import (
 	"com.lanuage/monkey/token"
 )
 
+// -5;  !true
 type PrefixExpression struct {
 	Token    token.Token // syntax token
 	Operator string
