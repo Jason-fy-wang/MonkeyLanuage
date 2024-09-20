@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"testing"
 
 	"com.lanuage/monkey/ast"
@@ -136,5 +137,125 @@ func TestPrefixExpression(t *testing.T) {
 		if intval.Value != itm.intVal {
 			t.Fatalf("expect %d, got %d", itm.intVal, intval.Value)
 		}
+	}
+}
+
+func testIdentifier(t *testing.T, exp ast.Expression, value string) bool {
+	ident, ok := exp.(*ast.Identifier)
+
+	if !ok {
+		t.Errorf("exp note *ast.Identifier, got %T", exp)
+
+		return false
+	}
+
+	if ident.Value != value {
+		t.Errorf("ident Value not %s,  got %s", value, ident.Value)
+
+		return false
+	}
+
+	if ident.TokenLiteral() != value {
+		t.Errorf("ident.TokenLiteral not %s, got %s", value, ident.TokenLiteral())
+
+		return false
+	}
+	return true
+}
+
+func testIntegerLiterals(t *testing.T, il ast.Expression, val int64) bool {
+
+	integ, ok := il.(*ast.IntegerLiteral)
+
+	if !ok {
+		t.Errorf("il not ast.IntegerLiteral, got %T", il)
+
+		return false
+	}
+
+	if integ.Value != val {
+		t.Errorf("intge.Value not %d, got %d", val, integ.Value)
+	}
+
+	if integ.TokenLiteral() != fmt.Sprintf("%d", val) {
+		t.Errorf("integ.TokenLiteral not %d, got %s", val, integ.TokenLiteral())
+		return false
+	}
+
+	return true
+}
+
+func testingLiteralExpression(t *testing.T, exp ast.Expression, expect interface{}) bool {
+
+	switch v := expect.(type) {
+	case int:
+		return testIntegerLiterals(t, exp, int64(v))
+	case int64:
+		return testIntegerLiterals(t, exp, v)
+	case string:
+		return testIdentifier(t, exp, v)
+	}
+
+	t.Errorf("type of exp not handled. got %T", expect)
+
+	return false
+}
+
+func testInfixExression(t *testing.T, exp ast.Expression, left interface{}, operator string, right interface{}) bool {
+
+	opExp, ok := exp.(*ast.InFixExpression)
+
+	if !ok {
+		t.Errorf("exp is not ast.InfixExpression.  got %T(%s)", exp, exp)
+		return false
+	}
+
+	if !testingLiteralExpression(t, opExp.Left, left) {
+		return false
+	}
+
+	if opExp.Operator != operator {
+		t.Errorf("exp.Operator is not %s, got =%q", operator, opExp.Operator)
+		return false
+	}
+
+	if !testingLiteralExpression(t, opExp.Right, right) {
+		return false
+	}
+	return true
+}
+
+func TestBoolExpression(t *testing.T) {
+
+	inputs := `
+		true;
+		false;
+	`
+
+	l := lexer.New(inputs)
+	p := New(l)
+
+	program := p.ParserProgram()
+
+	if len(program.Statements) != 2 {
+		t.Errorf("parse statements length not 2, got %d", len(program.Statements))
+	}
+
+	be, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Errorf("p.statement[0] not expressionStatement, got %T", program.Statements[0])
+	}
+
+	boolExp, ok := be.Expression.(*ast.Boolean)
+	if !ok {
+		t.Errorf("expressionStatement.expression not ast.Boolean. got %T", be.Expression)
+	}
+
+	if boolExp.Token.Type != token.TRUE {
+		t.Errorf("expect token.TRUE, got: %v", boolExp.Token.Type)
+	}
+
+	if boolExp.Value != true {
+		t.Errorf("expect true.  got %v", boolExp.Value)
 	}
 }
