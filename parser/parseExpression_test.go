@@ -194,11 +194,35 @@ func testingLiteralExpression(t *testing.T, exp ast.Expression, expect interface
 		return testIntegerLiterals(t, exp, v)
 	case string:
 		return testIdentifier(t, exp, v)
+
+	case bool:
+		return testBooleanLiteral(t, exp, v)
 	}
 
 	t.Errorf("type of exp not handled. got %T", expect)
 
 	return false
+}
+
+func testBooleanLiteral(t *testing.T, exp ast.Expression, value bool) bool {
+	bo, ok := exp.(*ast.Boolean)
+
+	if !ok {
+		t.Errorf("exp not ast.Boolean, got %T", exp)
+		return false
+	}
+
+	if bo.Value != value {
+		t.Errorf("bo.Value not %t, got %t", value, bo.Value)
+		return false
+	}
+
+	if bo.TokenLiteral() != fmt.Sprintf("%t", value) {
+		t.Errorf("bo.TokenLiteral not %t, got %s", value, bo.TokenLiteral())
+
+		return false
+	}
+	return true
 }
 
 func testInfixExression(t *testing.T, exp ast.Expression, left interface{}, operator string, right interface{}) bool {
@@ -258,4 +282,35 @@ func TestBoolExpression(t *testing.T) {
 	if boolExp.Value != true {
 		t.Errorf("expect true.  got %v", boolExp.Value)
 	}
+}
+
+func TestParsingInfixExpression(t *testing.T) {
+	infixTests := []struct {
+		input      string
+		leftValue  interface{}
+		operator   string
+		rightValue interface{}
+	}{
+		{"true == true", true, "==", true},
+		{"false == false", false, "==", false},
+		{"false != true", false, "!=", true},
+	}
+
+	for _, itm := range infixTests {
+		l := lexer.New(itm.input)
+		p := New(l)
+		program := p.ParserProgram()
+		CheckParserErrors(t, p)
+		estmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+
+		if !ok {
+			t.Errorf("can't convert to expressionStatement , got %v", program.Statements[0])
+			return
+		}
+
+		if !testInfixExression(t, estmt.Expression, itm.leftValue, itm.operator, itm.rightValue) {
+			return
+		}
+	}
+
 }

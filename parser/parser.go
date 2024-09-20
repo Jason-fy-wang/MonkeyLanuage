@@ -63,6 +63,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInFix(token.LESS, p.parseInfixExpression)
 	p.registerInFix(token.GREAT, p.parseInfixExpression)
 	p.registerInFix(token.EQUAL, p.parseInfixExpression)
+	p.registerInFix(token.NOTEQUAL, p.parseInfixExpression)
 	p.registerInFix(token.GREAT, p.parseInfixExpression)
 
 	return p
