@@ -90,10 +90,12 @@ func TestPrefixExpression(t *testing.T) {
 	prefixTests := []struct {
 		inputs   string
 		operator string
-		intVal   int64
+		expect   interface{}
 	}{
 		{"-5", "-", 5},
 		{"!10", "!", 10},
+		{"!true", "!", true},
+		{"!false", "!", false},
 	}
 
 	for _, itm := range prefixTests {
@@ -125,18 +127,14 @@ func TestPrefixExpression(t *testing.T) {
 			t.Fatal("convert to prefixExpression failed")
 		}
 
+		if !testingLiteralExpression(t, prefix.Right, itm.expect) {
+			return
+		}
+
 		if prefix.Operator != itm.operator {
 			t.Fatalf("expect %s , got %s", itm.operator, prefix.Operator)
 		}
 
-		intval, ok := prefix.Right.(*ast.IntegerLiteral)
-		if !ok {
-			t.Fatal("convert to intLiteral fail")
-		}
-
-		if intval.Value != itm.intVal {
-			t.Fatalf("expect %d, got %d", itm.intVal, intval.Value)
-		}
 	}
 }
 
@@ -291,6 +289,18 @@ func TestParsingInfixExpression(t *testing.T) {
 		operator   string
 		rightValue interface{}
 	}{
+		{"5+5", 5, "+", 5},
+		{"5-5", 5, "-", 5},
+		{"5*5", 5, "*", 5},
+		{"5/5", 5, "/", 5},
+		{"5>5", 5, ">", 5},
+		{"5<5", 5, "<", 5},
+		{"5==5", 5, "==", 5},
+		{"5!=5", 5, "!=", 5},
+		{"boobar + barfoo", "boobar", "+", "barfoo"},
+		{"boobar - barfoo", "boobar", "-", "barfoo"},
+		{"boobar * barfoo", "boobar", "*", "barfoo"},
+		{"boobar / barfoo", "boobar", "/", "barfoo"},
 		{"true == true", true, "==", true},
 		{"false == false", false, "==", false},
 		{"false != true", false, "!=", true},
@@ -311,6 +321,71 @@ func TestParsingInfixExpression(t *testing.T) {
 		if !testInfixExression(t, estmt.Expression, itm.leftValue, itm.operator, itm.rightValue) {
 			return
 		}
+	}
+}
+
+func TestOperatorPrecedenceParsing(t *testing.T) {
+
+	tests := []struct {
+		input  string
+		expect string
+	}{
+		{
+			"-a * b",
+			"((-a) * b)",
+		},
+		{
+			"!-a",
+			"(!(-a))",
+		},
+		{
+			"a+b+c",
+			"((a + b) + c)",
+		},
+		{
+			"a+b-c",
+			"((a + b) - c)",
+		},
+		{
+			"a*b*c",
+			"((a * b) * c)",
+		},
+		{
+			"a*b/c",
+			"((a * b) / c)",
+		},
+		{
+			"a+b/c",
+			"(a + (b / c))",
+		},
+		{
+			"a+b*c+d/e-f",
+			"(((a + (b * c)) + (d / e)) - f)",
+		},
+		{
+			"3+4; -5*5",
+			"(3 + 4)((-5) * 5)",
+		},
+		{
+			"!(true == true)",
+			"(!(true == true))",
+		},
+	}
+
+	for _, itm := range tests {
+		l := lexer.New(itm.input)
+		p := New(l)
+
+		program := p.ParserProgram()
+		CheckParserErrors(t, p)
+		if len(program.Statements) < 1 {
+			t.Fatalf("statements len le 1: %d", len(program.Statements))
+		}
+
+		if itm.expect != program.String() {
+			t.Errorf("expect: %s, input: %s", itm.expect, program.String())
+		}
+
 	}
 
 }
