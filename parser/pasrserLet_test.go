@@ -74,6 +74,36 @@ func testLetStatement(t *testing.T, stmt ast.Statement, name string) bool {
 	return true
 }
 
+func TestLetParse(t *testing.T) {
+	tests := []struct {
+		input            string
+		expectIdentifier string
+		expectVal        interface{}
+	}{
+		{"let x = 5;", "x", 5},
+		{"let y = true;", "y", true},
+		{"let foobar = y;", "foobar", "y"},
+	}
+
+	for _, itm := range tests {
+		l := lexer.New(itm.input)
+		p := New(l)
+		program := p.ParserProgram()
+		CheckParserErrors(t, p)
+
+		if len(program.Statements) != 1 {
+			t.Errorf("expect program statements length 1, got %d", len(program.Statements))
+		}
+
+		stmt := program.Statements[0].(*ast.LetStatement)
+		if !testLetStatement(t, stmt, itm.expectIdentifier) {
+			return
+		}
+
+		testingLiteralExpression(t, stmt.Value, itm.expectVal)
+	}
+}
+
 func CheckParserErrors(t *testing.T, p *Parser) {
 	if len(p.errors) == 0 {
 		return
@@ -120,5 +150,26 @@ func TestReturnStatements(t *testing.T) {
 		if rsstmt.Token.Literal != "return" {
 			t.Fatalf("tokenLiteral not return. got %s", rsstmt.Token.Literal)
 		}
+	}
+
+	idt1 := program.Statements[0].(*ast.ReturnStatement).Value.(*ast.Identifier)
+	if idt1.Value != "null" {
+		t.Errorf("expect null, got %s", idt1.Value)
+	}
+
+	idt2 := program.Statements[1].(*ast.ReturnStatement).Value.(*ast.CallExpression)
+
+	if idt2.Function.(*ast.Identifier).Value != "add" {
+		t.Errorf("expect add identifier, got %s", idt2.Function)
+	}
+
+	if len(idt2.Arguments) != 2 {
+		t.Errorf("expect arguments length 2, got %d", len(idt2.Arguments))
+	}
+
+	idt3 := program.Statements[2].(*ast.ReturnStatement).Value.(*ast.IntegerLiteral)
+
+	if idt3.Value != 3 {
+		t.Errorf("expect %d, got %d", 3, idt3.Value)
 	}
 }

@@ -633,6 +633,7 @@ func TestCallFunction(t *testing.T) {
 		t.Errorf("expect callExceptio, got %v", program.Statements[0])
 	}
 
+	t.Logf("callExpression %s", callExp.String())
 	if !testIdentifier(t, callExp.Function, "add") {
 		return
 	}
