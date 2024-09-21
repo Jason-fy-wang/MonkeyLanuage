@@ -387,5 +387,65 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 		}
 
 	}
+}
+
+func TestIfExpression(t *testing.T) {
+
+	input := `if (x > y) {x}`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParserProgram()
+	CheckParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Errorf("statemnets number not 1: %d", len(program.Statements))
+	}
+
+	expStmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Errorf("statment not expressionStatement, %v", program.Statements[0])
+	}
+
+	ife, ok := expStmt.Expression.(*ast.IfExpression)
+	if !ok {
+		t.Errorf("expect if statement, got %v", expStmt.Expression)
+	}
+
+	if ife.TokenLiteral() != "if" {
+		t.Errorf("expect if, got %v", ife.TokenLiteral())
+	}
+
+	confExp, ok := ife.Confition.(*ast.InFixExpression)
+
+	if !ok {
+		t.Errorf("expect condition as infixexpression, got %v", ife.Confition)
+	}
+
+	if confExp.Left.TokenLiteral() != "x" {
+		t.Errorf("expect x, got %s", confExp.Left.TokenLiteral())
+	}
+
+	if confExp.Operator != ">" {
+		t.Errorf("expect > , got %s", confExp.Operator)
+	}
+
+	if confExp.Right.TokenLiteral() != "y" {
+		t.Errorf("expect y, got %s", confExp.Right.TokenLiteral())
+	}
+
+	idtExp, ok := ife.Consequence.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Errorf("expect expressionStatement, got %v", ife.Consequence.Statements[0])
+	}
+
+	idt, ok := idtExp.Expression.(*ast.Identifier)
+	if !ok {
+		t.Errorf("expect identifier, got %v", idtExp.Expression)
+	}
+
+	if idt.Value != "x" {
+		t.Errorf("expect x, got %s", idt.Value)
+	}
 
 }
