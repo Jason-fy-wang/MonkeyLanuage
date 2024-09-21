@@ -55,6 +55,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.TRUE, p.parseBooleanExpression)
 	p.registerPrefix(token.LPAREN, p.parseGroupExpression)
 	p.registerPrefix(token.IF, p.parserIfExpression)
+	p.registerPrefix(token.FUNCTION, p.parserFunctionExpression)
 
 	// infix parser register
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
@@ -142,6 +143,24 @@ func (p *Parser) parserIfExpression() ast.Expression {
 	return expression
 }
 
+func (p *Parser) parserFunctionExpression() ast.Expression {
+	exp := &ast.FunctionLiteral{
+		Token: p.curToken,
+	}
+	if !p.expectPeek(token.LPAREN) {
+		return nil
+	}
+	exp.Parameters = p.parseFunctionParameters()
+
+	if !p.expectPeek(token.LBRACE) {
+		return nil
+	}
+
+	exp.Body = p.parseBlockStatements()
+
+	return exp
+}
+
 func (p *Parser) parseBlockStatements() *ast.BlockStatements {
 
 	block := &ast.BlockStatements{
@@ -161,6 +180,35 @@ func (p *Parser) parseBlockStatements() *ast.BlockStatements {
 	}
 
 	return block
+}
+
+func (p *Parser) parseFunctionParameters() []*ast.Identifier {
+	idts := []*ast.Identifier{}
+
+	if p.peekTokenIs(token.RPAREN) {
+		p.nextToken()
+		return idts
+	}
+
+	p.nextToken()
+
+	idt := &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+
+	idts = append(idts, idt)
+
+	for p.peekTokenIs(token.COMMA) {
+		p.nextToken()
+		p.nextToken()
+		idt = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+
+		idts = append(idts, idt)
+	}
+
+	if !p.expectPeek(token.RPAREN) {
+		return nil
+	}
+
+	return idts
 }
 
 func (p *Parser) parserPrefixExpression() ast.Expression {

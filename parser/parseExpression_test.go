@@ -526,3 +526,90 @@ func TestIfElseExpression(t *testing.T) {
 		t.Errorf("expect y, got %v", altIdt.Value)
 	}
 }
+
+func TestFunctionParse(t *testing.T) {
+	input := `fn(x, y) {x + y}`
+
+	l := lexer.New(input)
+	p := New(l)
+
+	program := p.ParserProgram()
+	CheckParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Errorf("expect 1 statements, got %d", len(program.Statements))
+	}
+
+	exprssExp, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Errorf("expect expressionStatement, got %v", program.Statements[0])
+	}
+
+	funcExp, ok := exprssExp.Expression.(*ast.FunctionLiteral)
+
+	if !ok {
+		t.Errorf("expect functionLiteral expression, got %v", exprssExp.Expression)
+	}
+
+	if funcExp.Token.Literal != "fn" {
+		t.Errorf("expect fn, got %s", funcExp.TokenLiteral())
+	}
+
+	if funcExp.Parameters[0].Value != "x" {
+		t.Errorf(" expect x, got %s", funcExp.Parameters[0].Value)
+	}
+
+	if funcExp.Parameters[1].Value != "y" {
+		t.Errorf(" expect y, got %s", funcExp.Parameters[1].Value)
+	}
+
+	body1Idt, ok := funcExp.Body.Statements[0].(*ast.ExpressionStatement).Expression.(*ast.InFixExpression)
+
+	if !ok {
+		t.Errorf("expect infixExpression body, got %v", funcExp.Body.Statements[0])
+	}
+
+	if body1Idt.Left.(*ast.Identifier).Value != "x" {
+		t.Errorf("expect x, got %s", body1Idt.Left)
+	}
+
+	if body1Idt.Operator != "+" {
+		t.Errorf("expect +, got %s", body1Idt.Operator)
+	}
+
+	if body1Idt.Right.(*ast.Identifier).Value != "y" {
+		t.Errorf("expect y, got %s", body1Idt.Left)
+	}
+}
+
+func TestFunctionParameter(t *testing.T) {
+	tests := []struct {
+		input  string
+		expect []string
+	}{
+		{input: "fn(){};", expect: []string{}},
+		{input: "fn(x){};", expect: []string{"x"}},
+		{input: "fn(x,y){};", expect: []string{"x", "y"}},
+	}
+
+	for _, itm := range tests {
+		l := lexer.New(itm.input)
+		p := New(l)
+		program := p.ParserProgram()
+
+		CheckParserErrors(t, p)
+
+		stmt := program.Statements[0].(*ast.ExpressionStatement)
+
+		funExp := stmt.Expression.(*ast.FunctionLiteral)
+
+		if len(funExp.Parameters) != len(itm.expect) {
+			t.Errorf("expect length %d, got %d", len(itm.expect), len(funExp.Parameters))
+		}
+
+		for i, ipm := range itm.expect {
+			testIdentifier(t, funExp.Parameters[i], ipm)
+		}
+	}
+
+}
