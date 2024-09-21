@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 
+	"com.lanuage/monkey/evaluator"
 	"com.lanuage/monkey/lexer"
 	"com.lanuage/monkey/parser"
 )
@@ -28,12 +29,20 @@ func Repl() {
 		l := lexer.New(line)
 		p := parser.New(l)
 
+		program := p.ParserProgram()
+
 		if len(p.Errors()) > 0 {
 			printParseErrors(os.Stderr, p.Errors())
+			continue
 		}
+		result := evaluator.Eval(program)
 
-		io.WriteString(os.Stdout, p.ParserProgram().String())
-		io.WriteString(os.Stdout, "\n")
+		if result != nil {
+			io.WriteString(os.Stdout, result.Inspect())
+			io.WriteString(os.Stdout, "\n")
+			io.WriteString(os.Stdout, program.String())
+			io.WriteString(os.Stdout, "\n")
+		}
 
 	}
 }
