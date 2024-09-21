@@ -41,6 +41,16 @@ func TestEvalBoolExpression(t *testing.T) {
 		{"1 != 1", false},
 		{"1 == 2", false},
 		{"1 != 2", true},
+
+		{"true==true", true},
+		{"false==false", true},
+		{"false == true", false},
+		{"true!=false", true},
+		{"false!=true", true},
+		{"(1<2) == true", true},
+		{"(1<2) == false", false},
+		{"(1>2) == true", false},
+		{"(1>2) == false", true},
 	}
 
 	for _, itm := range tests {
@@ -95,6 +105,39 @@ func TestEvalPreMinusOperation(t *testing.T) {
 		obj := testEval(itm.intput)
 		testIntegerObject(t, obj, itm.expect)
 	}
+}
+
+func TestIfParseExpression(t *testing.T) {
+	tests := []struct {
+		input  string
+		expect interface{}
+	}{
+		{"if(false) {10}", nil},
+		{"if(true) {10}", 10},
+		{"if(1) {10}", 10},
+		{"if(1<2) {10}", 10},
+		{"if(1>2) {10}", nil},
+		{"if(1>2) {10} else {20}", 20},
+		{"if(1<2) {10} else{20}", 10},
+	}
+
+	for _, itm := range tests {
+		obj := testEval(itm.input)
+		integer, ok := itm.expect.(int)
+		if !ok {
+			testNullObject(t, obj)
+		} else {
+			testIntegerObject(t, obj, int64(integer))
+		}
+	}
+}
+
+func testNullObject(t *testing.T, obj object.Object) bool {
+	if obj != NULL {
+		t.Errorf("object is not NULL. got %T (%+v)", obj, obj)
+		return false
+	}
+	return true
 }
 
 func testEval(input string) object.Object {
