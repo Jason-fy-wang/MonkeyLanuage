@@ -22,6 +22,10 @@ func Eval(node ast.Node) object.Object {
 	case *ast.Boolean:
 		return nativeBooltoToBooleanObject(nod.Value)
 
+	case *ast.PrefixExpression:
+		right := Eval(nod.Right)
+		return evalPrefixExpression(nod.Operator, right)
+
 	case *ast.Program:
 		return evelStatements(nod.Statements)
 
@@ -31,6 +35,40 @@ func Eval(node ast.Node) object.Object {
 	}
 	fmt.Fprintf(os.Stderr, "invalid expression. %v", node)
 	return nil
+}
+
+func evalPrefixExpression(operator string, rightNode object.Object) object.Object {
+	switch operator {
+	case "!":
+		return evalBangOperatorExpression(rightNode)
+	case "-":
+		return evalMinusPrefixOperationExpression(rightNode)
+
+	default:
+		return NULL
+	}
+}
+
+func evalBangOperatorExpression(node object.Object) object.Object {
+	switch node {
+	case TRUE:
+		return FALSE
+	case FALSE:
+		return TRUE
+	case NULL:
+		return TRUE
+	default:
+		return FALSE
+	}
+}
+
+func evalMinusPrefixOperationExpression(node object.Object) object.Object {
+	if node.Type() != object.INTEGER_OBJ {
+		return nil
+	}
+
+	val := node.(*object.Integer).Value
+	return &object.Integer{Value: -val}
 }
 
 func evelStatements(stmts []ast.Statement) object.Object {

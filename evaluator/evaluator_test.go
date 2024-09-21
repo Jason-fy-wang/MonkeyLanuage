@@ -40,6 +40,42 @@ func TestEvalBoolExpression(t *testing.T) {
 	}
 }
 
+func TestBangOperation(t *testing.T) {
+	tests := []struct {
+		input  string
+		expect bool
+	}{
+		{"!5", false},
+		{"!true", false},
+		{"!false", true},
+		{"!!true", true},
+		{"!!false", false},
+		{"!!5", true},
+	}
+
+	for _, itm := range tests {
+		obj := testEval(itm.input)
+		testBoolObject(t, obj, itm.expect)
+	}
+}
+
+func TestEvalPreMinusOperation(t *testing.T) {
+	tests := []struct {
+		intput string
+		expect int64
+	}{
+		{"5", 5},
+		{"-5", -5},
+		{"10", 10},
+		{"-10", -10},
+	}
+
+	for _, itm := range tests {
+		obj := testEval(itm.intput)
+		testIntegerObject(t, obj, itm.expect)
+	}
+}
+
 func testEval(input string) object.Object {
 
 	l := lexer.New(input)
