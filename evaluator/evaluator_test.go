@@ -32,6 +32,15 @@ func TestEvalBoolExpression(t *testing.T) {
 	}{
 		{"true", true},
 		{"false", false},
+
+		{"1<2", true},
+		{"1>2", false},
+		{"1<1", false},
+		{"1>1", false},
+		{"1==1", true},
+		{"1 != 1", false},
+		{"1 == 2", false},
+		{"1 != 2", true},
 	}
 
 	for _, itm := range tests {
@@ -68,6 +77,7 @@ func TestEvalPreMinusOperation(t *testing.T) {
 		{"-5", -5},
 		{"10", 10},
 		{"-10", -10},
+
 		{"5+5+5+5-10", 10},
 		{"2*2*2*2*2", 32},
 		{"-50+100+ -50", 0},
