@@ -613,3 +613,35 @@ func TestFunctionParameter(t *testing.T) {
 	}
 
 }
+
+func TestCallFunction(t *testing.T) {
+	input := `add(1, 2*3, 4+5)`
+
+	l := lexer.New(input)
+	p := New(l)
+
+	program := p.ParserProgram()
+	CheckParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Errorf("expect statments length 1, got %d", len(program.Statements))
+	}
+
+	callExp, ok := program.Statements[0].(*ast.ExpressionStatement).Expression.(*ast.CallExpression)
+
+	if !ok {
+		t.Errorf("expect callExceptio, got %v", program.Statements[0])
+	}
+
+	if !testIdentifier(t, callExp.Function, "add") {
+		return
+	}
+
+	if len(callExp.Arguments) != 3 {
+		t.Errorf("expect arguments length 3, got %d", len(callExp.Arguments))
+	}
+
+	testingLiteralExpression(t, callExp.Arguments[0], 1)
+	testInfixExression(t, callExp.Arguments[1], 2, "*", 3)
+	testInfixExression(t, callExp.Arguments[2], 4, "+", 5)
+}
