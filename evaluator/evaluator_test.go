@@ -203,6 +203,70 @@ func TestLetStatements(t *testing.T) {
 	}
 }
 
+func TestFunctionObject(t *testing.T) {
+	input := "fn(x) {x+2;};"
+
+	evaluated := testEval(input)
+
+	fn, ok := evaluated.(*object.Function)
+
+	if !ok {
+		t.Fatalf("object is not function. got %T (%-v)", evaluated, evaluated)
+	}
+
+	if len(fn.Parameters) != 1 {
+		t.Fatalf("wrong parameters count. Parameters=%-v", fn.Parameters)
+	}
+
+	if fn.Parameters[0].String() != "x" {
+		t.Fatalf("expect parameter x, got %-v", fn.Parameters[0].String())
+	}
+
+	expectedBody := "(x + 2)"
+
+	if fn.Body.String() != expectedBody {
+		t.Fatalf("expect body: %s, got %s", expectedBody, fn.Body.String())
+	}
+}
+
+func TestFunctionApplication(t *testing.T) {
+	tests := []struct {
+		intput   string
+		expected int64
+	}{
+		{
+			"let add = fn(x,y){x+y;};  add(5+5, add(5, 5));",
+			20,
+		},
+		{
+			"let identity=fn(x) {x;};  identity(5);",
+			5,
+		},
+		{
+			"let identity=fn(x) {return x;};  identity(5);",
+			5,
+		},
+		{
+			"let double=fn(x){x*2;};  double(5);",
+			10,
+		},
+		{
+			"let add = fn(x,y){x+y;};   add(5,5);",
+			10,
+		},
+
+		{
+			"fn(x){x;}(5)",
+			5,
+		},
+	}
+
+	for _, itm := range tests {
+		evaluated := testEval(itm.intput)
+		testIntegerObject(t, evaluated, itm.expected)
+	}
+}
+
 func testNullObject(t *testing.T, obj object.Object) bool {
 	if obj != NULL {
 		t.Errorf("object is not NULL. got %T (%+v)", obj, obj)

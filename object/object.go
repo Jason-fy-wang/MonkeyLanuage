@@ -8,6 +8,7 @@ const (
 	NULL_OBJ         = "NULL"
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
 	ERROR_OBJ        = "ERROR"
+	FUNCTION_OBJ     = "FUNCTION"
 )
 
 type Object interface {
@@ -15,19 +16,30 @@ type Object interface {
 	Inspect() string
 }
 
+func NewEnclosedEnvironment(outer *Environement) *Environement {
+	env := NewEnvironment()
+	env.outer = outer
+	return env
+}
+
 func NewEnvironment() *Environement {
 	env := &Environement{
 		store: make(map[string]Object),
+		outer: nil,
 	}
 	return env
 }
 
 type Environement struct {
 	store map[string]Object
+	outer *Environement
 }
 
 func (e *Environement) Get(name string) (Object, bool) {
 	obj, ok := e.store[name]
+	if !ok && e.outer != nil {
+		obj, ok = e.outer.Get(name)
+	}
 	return obj, ok
 }
 
