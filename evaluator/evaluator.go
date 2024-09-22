@@ -39,11 +39,15 @@ func Eval(node ast.Node) object.Object {
 
 	case *ast.BlockStatements:
 		if nod.Statements != nil {
-			return evalStatements(nod.Statements)
+			return evalBlockStatements(nod.Statements)
 		}
 		return nil
+	case *ast.ReturnStatement:
+		val := Eval(nod.Value)
+
+		return &object.ReturnValue{Value: val}
 	case *ast.Program:
-		return evalStatements(nod.Statements)
+		return evalProgram(nod.Statements)
 
 	case *ast.ExpressionStatement:
 		return Eval(nod.Expression)
@@ -161,15 +165,48 @@ func isTruthy(obj object.Object) bool {
 	}
 }
 
-func evalStatements(stmts []ast.Statement) object.Object {
+// func evalStatements(stmts []ast.Statement) object.Object {
+
+// 	var obj object.Object
+
+// 	for _, itm := range stmts {
+// 		obj = Eval(itm)
+
+// 		if retVal, ok := obj.(*object.ReturnValue); ok {
+// 			return retVal.Value
+// 		}
+// 	}
+
+// 	return obj
+// }
+
+func evalProgram(stmts []ast.Statement) object.Object {
 
 	var obj object.Object
 
 	for _, itm := range stmts {
 		obj = Eval(itm)
+
+		if retVal, ok := obj.(*object.ReturnValue); ok {
+			return retVal.Value
+		}
 	}
 
 	return obj
+}
+
+func evalBlockStatements(stmts []ast.Statement) object.Object {
+	var ret object.Object
+
+	for _, stmt := range stmts {
+		ret = Eval(stmt)
+
+		if ret != nil && ret.Type() == object.RETURN_VALUE_OBJ {
+			return ret
+		}
+	}
+
+	return ret
 }
 
 func nativeBooltoToBooleanObject(input bool) object.Object {
