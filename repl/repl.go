@@ -6,10 +6,10 @@ import (
 	"io"
 	"os"
 
-	"com.lanuage/monkey/evaluator"
-	"com.lanuage/monkey/lexer"
-	"com.lanuage/monkey/object"
-	"com.lanuage/monkey/parser"
+	"com.language/monkey/evaluator"
+	"com.language/monkey/lexer"
+	"com.language/monkey/object"
+	"com.language/monkey/parser"
 )
 
 func Repl() {

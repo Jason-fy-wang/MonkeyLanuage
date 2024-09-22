@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"strings"
 
-	"com.lanuage/monkey/token"
+	"com.language/monkey/token"
 )
 
 type FunctionLiteral struct {

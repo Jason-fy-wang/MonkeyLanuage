@@ -1,6 +1,6 @@
 package ast
 
-import "com.lanuage/monkey/token"
+import "com.language/monkey/token"
 
 type ExpressionStatement struct {
 	Token      token.Token

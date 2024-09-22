@@ -1,6 +1,6 @@
 package main
 
-import "com.lanuage/monkey/repl"
+import "com.language/monkey/repl"
 
 func main() {
 	repl.Repl()

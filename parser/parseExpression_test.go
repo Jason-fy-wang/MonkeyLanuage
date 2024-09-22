@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"com.lanuage/monkey/ast"
-	"com.lanuage/monkey/lexer"
-	"com.lanuage/monkey/token"
+	"com.language/monkey/ast"
+	"com.language/monkey/lexer"
+	"com.language/monkey/token"
 )
 
 func TestIdentifierExpression(t *testing.T) {

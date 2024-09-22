@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"com.lanuage/monkey/token"
+	"com.language/monkey/token"
 )
 
 type Lexer struct {

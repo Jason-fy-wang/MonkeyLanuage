@@ -3,7 +3,7 @@ package ast
 import (
 	"bytes"
 
-	"com.lanuage/monkey/token"
+	"com.language/monkey/token"
 )
 
 // -5;  !true

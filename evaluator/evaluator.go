@@ -3,8 +3,8 @@ package evaluator
 import (
 	"fmt"
 
-	"com.lanuage/monkey/ast"
-	"com.lanuage/monkey/object"
+	"com.language/monkey/ast"
+	"com.language/monkey/object"
 )
 
 var (
