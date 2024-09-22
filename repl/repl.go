@@ -8,6 +8,7 @@ import (
 
 	"com.lanuage/monkey/evaluator"
 	"com.lanuage/monkey/lexer"
+	"com.lanuage/monkey/object"
 	"com.lanuage/monkey/parser"
 )
 
@@ -15,7 +16,7 @@ func Repl() {
 	const PROMPT = ">> "
 
 	scanner := bufio.NewScanner(os.Stdin)
-
+	env := object.NewEnvironment()
 	for {
 		fmt.Fprint(os.Stdout, PROMPT)
 
@@ -35,7 +36,7 @@ func Repl() {
 			printParseErrors(os.Stderr, p.Errors())
 			continue
 		}
-		result := evaluator.Eval(program)
+		result := evaluator.Eval(program, env)
 
 		if result != nil {
 			io.WriteString(os.Stdout, result.Inspect())
