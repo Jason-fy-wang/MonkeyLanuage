@@ -132,6 +132,56 @@ func TestIfParseExpression(t *testing.T) {
 	}
 }
 
+func TestErrorHandling(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{
+			"5 + true;",
+			"type mismatch: INTEGER + BOOLEAN",
+		},
+		{
+			"5 + true; 5;",
+			"type mismatch: INTEGER + BOOLEAN",
+		},
+		{
+			"-true",
+			"unknow operator:-BOOLEAN",
+		},
+		{
+			"true + false",
+			"unknow operator: BOOLEAN + BOOLEAN",
+		},
+		{
+			"5; true + false; 5;",
+			"unknow operator: BOOLEAN + BOOLEAN",
+		},
+		{
+			"if(10>1){true +  false;}",
+			"unknow operator: BOOLEAN + BOOLEAN",
+		},
+		{
+			"if(10>1){ if (10 > 1) { return true +  false;}  return 1;}",
+			"unknow operator: BOOLEAN + BOOLEAN",
+		},
+	}
+
+	for _, itm := range tests {
+		obj := testEval(itm.input)
+
+		err, ok := obj.(*object.Error)
+		if !ok {
+			t.Errorf("no error object returned. got %T(%+v)", obj, obj)
+			continue
+		}
+
+		if err.Message != itm.expected {
+			t.Errorf("expect error mesage: %s, got %s", itm.expected, err.Message)
+		}
+	}
+}
+
 func testNullObject(t *testing.T, obj object.Object) bool {
 	if obj != NULL {
 		t.Errorf("object is not NULL. got %T (%+v)", obj, obj)
