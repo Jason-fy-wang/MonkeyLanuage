@@ -102,16 +102,18 @@ func Eval(node ast.Node, env *object.Environement) object.Object {
 }
 
 func applyFunction(fn object.Object, args []object.Object) object.Object {
-	function, ok := fn.(*object.Function)
 
-	if !ok {
+	switch function := fn.(type) {
+	case *object.Function:
+		extendEnv := extendFunctionEnv(function, args)
+		evaluated := Eval(function.Body, extendEnv)
+		return unwrapReturnValue(evaluated)
+
+	case *object.Builtin:
+		return function.Fn(args...)
+	default:
 		return NewError("not a function: %s", fn.Type())
 	}
-
-	extendEnv := extendFunctionEnv(function, args)
-	evaluated := Eval(function.Body, extendEnv)
-
-	return unwrapReturnValue(evaluated)
 }
 
 func extendFunctionEnv(fn *object.Function, args []object.Object) *object.Environement {
@@ -258,13 +260,15 @@ func evalIfExpression(node *ast.IfExpression, env *object.Environement) object.O
 }
 
 func evalIdentifier(node *ast.Identifier, env *object.Environement) object.Object {
-	val, ok := env.Get(node.Value)
-
-	if !ok {
-		return NewError("identifier not fond: " + node.Value)
+	if val, ok := env.Get(node.Value); ok {
+		return val
 	}
 
-	return val
+	if builtin, ok := Builtins[node.Value]; ok {
+		return builtin
+	}
+
+	return NewError("identifier not fond: " + node.Value)
 }
 
 func isTruthy(obj object.Object) bool {
