@@ -54,6 +54,8 @@ func TestLiteral(t *testing.T) {
 				10 != 9
 				10 <= 11
 				10 >= 9
+				"foobar"
+				"foo bar"
 				`
 
 	tests := []struct {
@@ -63,12 +65,12 @@ func TestLiteral(t *testing.T) {
 		{token.LET, "let"},
 		{token.IDENT, "five"},
 		{token.ASSIGN, "="},
-		{token.IDENT, "5"},
+		{token.INT, "5"},
 		{token.SEMICOLON, ";"},
 		{token.LET, "let"},
 		{token.IDENT, "ten"},
 		{token.ASSIGN, "="},
-		{token.IDENT, "10"},
+		{token.INT, "10"},
 		{token.SEMICOLON, ";"},
 		{token.LET, "let"},
 		{token.IDENT, "add"},
@@ -100,18 +102,18 @@ func TestLiteral(t *testing.T) {
 		{token.MINUS, "-"},
 		{token.SLASH, "/"},
 		{token.ASTERISK, "*"},
-		{token.IDENT, "5"},
-		{token.IDENT, "5"},
+		{token.INT, "5"},
+		{token.INT, "5"},
 		{token.LESS, "<"},
-		{token.IDENT, "10"},
+		{token.INT, "10"},
 		{token.GREAT, ">"},
-		{token.IDENT, "5"},
+		{token.INT, "5"},
 
 		{token.IF, "if"},
 		{token.LPAREN, "("},
-		{token.IDENT, "5"},
+		{token.INT, "5"},
 		{token.LESS, "<"},
-		{token.IDENT, "10"},
+		{token.INT, "10"},
 		{token.RPAREN, ")"},
 		{token.LBRACE, "{"},
 		{token.RETURN, "return"},
@@ -126,17 +128,20 @@ func TestLiteral(t *testing.T) {
 		{token.RBRACE, "}"},
 
 		// binocular operation (双目)
-		{token.IDENT, "10"},
+		{token.INT, "10"},
 		{token.EQUAL, "=="},
-		{token.IDENT, "10"},
+		{token.INT, "10"},
+		{token.INT, "10"},
 		{token.NOTEQUAL, "!="},
-		{token.IDENT, "9"},
-		{token.IDENT, "10"},
+		{token.INT, "9"},
+		{token.INT, "10"},
 		{token.LEQ, "<="},
-		{token.IDENT, "11"},
-		{token.IDENT, "10"},
+		{token.INT, "11"},
+		{token.INT, "10"},
 		{token.GEQ, ">="},
-		{token.IDENT, "9"},
+		{token.INT, "9"},
+		{token.STRING, "foobar"},
+		{token.STRING, "foo bar"},
 	}
 
 	l := New(input)
