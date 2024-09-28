@@ -24,6 +24,7 @@ var precedences = map[token.TokenType]int{
 	token.SLASH:    PRODUCT,
 	token.ASTERISK: PRODUCT,
 	token.LPAREN:   CALL,
+	token.LBRACKET: INDEX,
 }
 
 type Parser struct {
@@ -58,6 +59,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.IF, p.parserIfExpression)
 	p.registerPrefix(token.FUNCTION, p.parserFunctionExpression)
 	p.registerPrefix(token.STRING, p.parseStringLiteral)
+	p.registerPrefix(token.LBRACKET, p.parseArrayLiteral)
 
 	// infix parser register
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
@@ -71,8 +73,32 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInFix(token.NOTEQUAL, p.parseInfixExpression)
 	p.registerInFix(token.GREAT, p.parseInfixExpression)
 	p.registerInFix(token.LPAREN, p.parseCallExpression)
+	p.registerInFix(token.LBRACKET, p.parseIndexExpression)
 
 	return p
+}
+
+func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
+	exp := &ast.IndexExpression{
+		Token: p.curToken,
+		Left:  left,
+	}
+
+	p.nextToken()
+	exp.Index = p.parseExpression(LOWEST)
+
+	if !p.expectPeek(token.RBRACKET) {
+		return nil
+	}
+
+	return exp
+}
+
+func (p *Parser) parseArrayLiteral() ast.Expression {
+	array := &ast.ArrayLiteral{Token: p.curToken}
+	array.Elements = p.parseExpressionList(token.RBRACKET)
+
+	return array
 }
 
 // 解析标识符 表达式
@@ -250,6 +276,30 @@ func (p *Parser) parseCallArguments() []ast.Expression {
 	}
 
 	return args
+}
+
+func (p *Parser) parseExpressionList(end token.TokenType) []ast.Expression {
+	expresList := []ast.Expression{}
+
+	if p.peekTokenIs(end) {
+		p.nextToken()
+		return expresList
+	}
+
+	p.nextToken()
+	expresList = append(expresList, p.parseExpression(LOWEST))
+
+	for p.peekTokenIs(token.COMMA) {
+		p.nextToken()
+		p.nextToken()
+		expresList = append(expresList, p.parseExpression(LOWEST))
+	}
+
+	if !p.expectPeek(end) {
+		return nil
+	}
+
+	return expresList
 }
 
 func (p *Parser) parserPrefixExpression() ast.Expression {

@@ -56,6 +56,7 @@ func TestLiteral(t *testing.T) {
 				10 >= 9
 				"foobar"
 				"foo bar"
+				[1,2];
 				`
 
 	tests := []struct {
@@ -142,6 +143,11 @@ func TestLiteral(t *testing.T) {
 		{token.INT, "9"},
 		{token.STRING, "foobar"},
 		{token.STRING, "foo bar"},
+		{token.LBRACKET, "["},
+		{token.INT, "1"},
+		{token.COMMA, ","},
+		{token.INT, "2"},
+		{token.RBRACKET, "]"},
 	}
 
 	l := New(input)

@@ -333,6 +333,65 @@ func TestBuiltinFunctions(t *testing.T) {
 	}
 }
 
+func TestArrayLiteral(t *testing.T) {
+	input := "[1,2*2, 3+3]"
+
+	evaluated := testEval(input)
+
+	arrObj, ok := evaluated.(*object.Array)
+	if !ok {
+		t.Fatalf("object not array. got %T (%+v)", evaluated, evaluated)
+	}
+
+	if len(arrObj.Elements) != 3 {
+		t.Fatalf("expect elements number is 3,got %d", len(arrObj.Elements))
+	}
+
+	testIntegerObject(t, arrObj.Elements[0], 1)
+	testIntegerObject(t, arrObj.Elements[1], 4)
+	testIntegerObject(t, arrObj.Elements[2], 6)
+
+}
+
+func TestArrayIndexExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected interface{}
+	}{
+		{
+			"[1,2,3][0]",
+			1,
+		},
+		{
+			"[1,2,3][2]",
+			3,
+		},
+		{
+			"[1,2,3][1]",
+			2,
+		},
+		{
+			"[1,2,3][-1]",
+			nil,
+		},
+		{
+			"[1,2,3][4]",
+			nil,
+		},
+	}
+
+	for _, itm := range tests {
+		evaluated := testEval(itm.input)
+		integer, ok := itm.expected.(int)
+		if ok {
+			testIntegerObject(t, evaluated, int64(integer))
+		} else {
+			testNullObject(t, evaluated)
+		}
+
+	}
+}
+
 func testNullObject(t *testing.T, obj object.Object) bool {
 	if obj != NULL {
 		t.Errorf("object is not NULL. got %T (%+v)", obj, obj)
