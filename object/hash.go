@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"hash/fnv"
+	"strings"
 )
 
 type HashTable interface {
@@ -50,17 +51,17 @@ func (h *Hash) Type() ObjectType {
 	return HASH_OBJ
 }
 
-func(h *Hash) Inspect() string {
+func (h *Hash) Inspect() string {
 	var out bytes.Buffer
 
-	pairs := []string[]
+	pairs := []string{}
 
-	for _,  pair:= range h.Pairs {
+	for _, pair := range h.Pairs {
 		pairs = append(pairs, fmt.Sprintf("%s:%s", pair.Key.Inspect(), pair.Value.Inspect()))
 	}
 
 	out.WriteString("{")
-	out.WriteString(strings.Join(pairs,", "))
+	out.WriteString(strings.Join(pairs, ", "))
 	out.WriteString("}")
 	return out.String()
 }

@@ -134,7 +134,7 @@ func evalHashLiteral(node *ast.HashLiteral, env *object.Environement) object.Obj
 
 		hashKey, ok := key.(object.HashTable)
 		if !ok {
-
+			return NewError("unusable as hash key: %s", key.Type())
 		}
 
 		val := Eval(valNode, env)
@@ -155,6 +155,8 @@ func evalIndexExpression(left, index object.Object) object.Object {
 	case left.Type() == object.ARRAY_OBJ && index.Type() == object.INTEGER_OBJ:
 
 		return evalArrayIndexExpression(left, index)
+	case left.Type() == object.HASH_OBJ:
+		return evalHashIndexExpression(left, index)
 	default:
 		return NewError("index operator not supported: %s", left.Type())
 	}
@@ -172,6 +174,24 @@ func evalArrayIndexExpression(left, index object.Object) object.Object {
 	}
 
 	return arrayObj.Elements[idx]
+}
+
+func evalHashIndexExpression(left, index object.Object) object.Object {
+	hashObj, ok := left.(*object.Hash)
+	if !ok {
+		return NewError("expect HASH object, got %T", left)
+	}
+	key, ok := index.(object.HashTable)
+	if !ok {
+		return NewError("expect HashTable object, got %T", index)
+	}
+	pair, ok := hashObj.Pairs[key.HashKey()]
+
+	if !ok {
+		return NULL
+	}
+
+	return pair.Value
 }
 
 func applyFunction(fn object.Object, args []object.Object) object.Object {
