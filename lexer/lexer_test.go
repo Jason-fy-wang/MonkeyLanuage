@@ -187,18 +187,18 @@ func TestDoubleOperation(t *testing.T) {
 		expectLeteral string
 	}{
 		// binocular operation (双目)
-		{token.IDENT, "10"},
+		{token.INT, "10"},
 		{token.EQUAL, "=="},
-		{token.IDENT, "10"},
-		{token.IDENT, "10"},
+		{token.INT, "10"},
+		{token.INT, "10"},
 		{token.NOTEQUAL, "!="},
-		{token.IDENT, "9"},
-		{token.IDENT, "10"},
+		{token.INT, "9"},
+		{token.INT, "10"},
 		{token.LEQ, "<="},
-		{token.IDENT, "11"},
-		{token.IDENT, "10"},
+		{token.INT, "11"},
+		{token.INT, "10"},
 		{token.GEQ, ">="},
-		{token.IDENT, "9"},
+		{token.INT, "9"},
 	}
 
 	l := New(input)
