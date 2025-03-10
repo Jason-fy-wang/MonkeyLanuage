@@ -16,6 +16,6 @@ build: clean test_cover
 
 all: build
 
-.PHONY: clean build
+.PHONY: clean build test_cover broswer_test
 
 
